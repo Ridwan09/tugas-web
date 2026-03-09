@@ -90,35 +90,41 @@ class Item extends CI_Controller {
 					//akses function kategori
 					$this->kategori($id_item, $this->input->post('kategori', TRUE));
 					//upload Foto Lainnya
-					$len = count($_FILES['gb']['name']); //hitung jumlah form
+					if (isset($_FILES['gb']['name']) && is_array($_FILES['gb']['name']))
+					{
+						$len = count($_FILES['gb']['name']); //hitung jumlah form
 
-					for ($i=0; $i < $len; $i++) {
-						$foto = '';
-						//masukkan data file ke variabel foto sesuai index array
-						$_FILES[$foto]['name'] = $_FILES['gb']['name'][$i];
-				      	$_FILES[$foto]['type'] = $_FILES['gb']['type'][$i];
-				      	$_FILES[$foto]['tmp_name'] = $_FILES['gb']['tmp_name'][$i];
-						$_FILES[$foto]['size'] = $_FILES['gb']['size'][$i];
-						$_FILES[$foto]['error'] = $_FILES['gb']['error'][$i];
+						for ($i=0; $i < $len; $i++) {
+							if (empty($_FILES['gb']['name'][$i])) {
+								continue;
+							}
 
-						$config['file_name'] = 'img'.time().$i; //rename foto yang diupload
+							$foto = 'foto_multi';
+							//masukkan data file ke variabel foto sesuai index array
+							$_FILES[$foto]['name'] = $_FILES['gb']['name'][$i];
+							$_FILES[$foto]['type'] = $_FILES['gb']['type'][$i];
+							$_FILES[$foto]['tmp_name'] = $_FILES['gb']['tmp_name'][$i];
+							$_FILES[$foto]['size'] = $_FILES['gb']['size'][$i];
+							$_FILES[$foto]['error'] = $_FILES['gb']['error'][$i];
 
-						$this->upload->initialize($config);
+							$config['file_name'] = 'img'.time().$i; //rename foto yang diupload
 
-						if ($this->upload->do_upload($foto))
-						{
-							//fetch data file yang diupload
-							$gb = $this->upload->data();
+							$this->upload->initialize($config);
 
-							$data = [
-								'id_item' => $id_item,
-								'img' => $gb['file_name']
-							];
-							//insert data img
-							$this->items->insert('t_img', $data);
+							if ($this->upload->do_upload($foto))
+							{
+								//fetch data file yang diupload
+								$gb = $this->upload->data();
+
+								$data = [
+									'id_item' => $id_item,
+									'img' => $gb['file_name']
+								];
+								//insert data img
+								$this->items->insert('t_img', $data);
+							}
 						}
-			      }
-
+					}
 					redirect('item');
 
 				} else {
@@ -217,23 +223,29 @@ class Item extends CI_Controller {
 				$this->items->delete('t_rkategori', ['id_item' => $id_item]);
 				$this->kategori($id_item, $this->input->post('kategori', TRUE));
 
-				$len = count($_FILES['gb']['name']); //hitung jumlah form
+				if (isset($_FILES['gb']['name']) && is_array($_FILES['gb']['name']))
+				{
+					$len = count($_FILES['gb']['name']); //hitung jumlah form
 
-				for ($i=0; $i < $len; $i++) {
-					$foto = '';
-					//masukkan data file ke variabel foto sesuai index array
-					$_FILES[$foto]['name'] = $_FILES['gb']['name'][$i];
-					$_FILES[$foto]['type'] = $_FILES['gb']['type'][$i];
-					$_FILES[$foto]['tmp_name'] = $_FILES['gb']['tmp_name'][$i];
-					$_FILES[$foto]['size'] = $_FILES['gb']['size'][$i];
-					$_FILES[$foto]['error'] = $_FILES['gb']['error'][$i];
+					for ($i=0; $i < $len; $i++) {
+						if (empty($_FILES['gb']['name'][$i])) {
+							continue;
+						}
 
-					$config['file_name'] = 'img'.time().$i; //rename foto yang diupload
+						$foto = 'foto_multi';
+						//masukkan data file ke variabel foto sesuai index array
+						$_FILES[$foto]['name'] = $_FILES['gb']['name'][$i];
+						$_FILES[$foto]['type'] = $_FILES['gb']['type'][$i];
+						$_FILES[$foto]['tmp_name'] = $_FILES['gb']['tmp_name'][$i];
+						$_FILES[$foto]['size'] = $_FILES['gb']['size'][$i];
+						$_FILES[$foto]['error'] = $_FILES['gb']['error'][$i];
 
-					$this->upload->initialize($config);
+						$config['file_name'] = 'img'.time().$i; //rename foto yang diupload
 
-					if ($this->upload->do_upload($foto))
-					{
+						$this->upload->initialize($config);
+
+						if ($this->upload->do_upload($foto))
+						{
 						$gb = $this->upload->data();
 
 						$data = [
@@ -242,6 +254,7 @@ class Item extends CI_Controller {
 						];
 
 						$this->items->insert('t_img', $data);
+					}
 					}
 				}
 
